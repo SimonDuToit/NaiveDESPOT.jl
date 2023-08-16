@@ -123,7 +123,7 @@ struct POMCPTree{A,O}
     children::Vector{Vector{Int}}        # indices of each of the children
     o_labels::Vector{O}                  # actual observation corresponding to this observation node
 
-    o_lookup::Dict{Tuple{Int, O}, Int}   # mapping from (action node index, observation) to an observation node index
+    # o_lookup::Dict{Tuple{Int, O}, Int}   # mapping from (action node index, observation) to an observation node index
     s_lookup::Dict{Tuple{Int, Int}, Int}
 
     # for each action-terminated history
@@ -178,14 +178,14 @@ POMDPs.rand(rng::AbstractRNG, s::Random.SamplerTrivial{<:LeafNodeBelief}) = s[].
 # old deprecated name
 const AOHistoryBelief = LeafNodeBelief
 
-function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o)
+function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o, scenario)
     acts = actions(pomdp, LeafNodeBelief(tuple((a=t.a_labels[ha], o=o)), sp))
     push!(t.total_n, 0)
     push!(t.children, sizehint!(Int[], length(acts)))
     push!(t.o_labels, o)
     hao = length(t.total_n)
-    t.o_lookup[(ha, o)] = hao
-    t.s_lookup[(ha, s)] = hao
+    # t.o_lookup[(ha, o)] = hao
+    t.s_lookup[(ha, scenario)] = hao
     for a in acts
         n = insert_action_node!(t, hao, a)
         push!(t.children[hao], n)
