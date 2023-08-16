@@ -28,8 +28,9 @@ function search(p::POMCPPlanner, b, t::POMCPTree, info::Dict)
             break
         end
         s = rand(p.rng, b)
+        scenario = rand(p.rng, 1:t.scenarios)
         if !POMDPs.isterminal(p.problem, s)
-            simulate(p, s, POMCPObsNode(t, 1), p.solver.max_depth)
+            simulate(p, s, POMCPObsNode(t, 1), p.solver.max_depth, scenario)
             all_terminal = false
         end
     end
@@ -56,7 +57,7 @@ end
 
 solve(solver::POMCPSolver, pomdp::POMDP) = POMCPPlanner(solver, pomdp)
 
-function simulate(p::POMCPPlanner, s, hnode::POMCPObsNode, steps::Int)
+function simulate(p::POMCPPlanner, s, hnode::POMCPObsNode, steps::Int, scenario::Int)
     if steps == 0 || isterminal(p.problem, s)
         return 0.0
     end
@@ -89,9 +90,10 @@ function simulate(p::POMCPPlanner, s, hnode::POMCPObsNode, steps::Int)
 
     sp, o, r = @gen(:sp, :o, :r)(p.problem, s, a, p.rng)
 
-    hao = get(t.o_lookup, (ha, o), 0)
+    hao = get(t.s_lookup, (ha, scenario), 0)
+    # hao = get(t.o_lookup, (ha, o), 0)
     if hao == 0
-        hao = insert_obs_node!(t, p.problem, ha, sp, o)
+        hao = insert_obs_node!(t, p.problem, ha, sp, o, scenario)
         v = estimate_value(p.solved_estimator,
                            p.problem,
                            sp,
