@@ -1,6 +1,6 @@
-name = "BasicPOMCP"
-uuid = "d721219e-3fc6-5570-a8ef-e5402f47c49e"
-repo = "https://github.com/JuliaPOMDP/BasicPOMCP.jl"
+name = "NaiveDESPOT"
+uuid = "6bfa5940-3c60-11ee-1a7e-43a2532b2fa8"
+repo = "https://github.com/JuliaPOMDP/NaiveDESPOT.jl"
 version = "0.3.9"
 
 [deps]
