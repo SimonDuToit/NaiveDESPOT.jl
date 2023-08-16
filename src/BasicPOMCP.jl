@@ -1,5 +1,5 @@
 
-module BasicPOMCP
+module NaiveDESPOT
 
 #=
 Current constraints:
