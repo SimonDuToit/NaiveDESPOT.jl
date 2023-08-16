@@ -28,7 +28,7 @@ function search(p::POMCPPlanner, b, t::POMCPTree, info::Dict)
             break
         end
         s = rand(p.rng, b)
-        scenario = rand(p.rng, 1:t.scenarios)
+        scenario = rand(p.rng, 1:p.solver.scenarios)
         if !POMDPs.isterminal(p.problem, s)
             simulate(p, s, POMCPObsNode(t, 1), p.solver.max_depth, scenario)
             all_terminal = false
