@@ -107,6 +107,7 @@ Partially Observable Monte Carlo Planning Solver.
 """
 @with_kw mutable struct POMCPSolver <: AbstractPOMCPSolver
     max_depth::Int          = 20
+    scenarios::Int          = 20
     c::Float64              = 1.0
     tree_queries::Int       = 1000
     max_time::Float64       = Inf
@@ -123,6 +124,7 @@ struct POMCPTree{A,O}
     o_labels::Vector{O}                  # actual observation corresponding to this observation node
 
     o_lookup::Dict{Tuple{Int, O}, Int}   # mapping from (action node index, observation) to an observation node index
+    s_lookup::Dict{Tuple{Int, Int}, Int}
 
     # for each action-terminated history
     n::Vector{Int}                       # number of visits for an action node
@@ -183,6 +185,7 @@ function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o)
     push!(t.o_labels, o)
     hao = length(t.total_n)
     t.o_lookup[(ha, o)] = hao
+    t.s_lookup[(ha, s)] = hao
     for a in acts
         n = insert_action_node!(t, hao, a)
         push!(t.children[hao], n)
