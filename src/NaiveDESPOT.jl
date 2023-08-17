@@ -204,7 +204,7 @@ end
 
 abstract type BeliefNode <: AbstractStateNode end
 
-struct NDESPOTNode{A,O} <: BeliefNode
+struct NDESPOTObsNode{A,O} <: BeliefNode
     tree::NDESPOTTree{A,O}
     node::Int
 end
