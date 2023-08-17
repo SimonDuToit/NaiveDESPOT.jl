@@ -202,7 +202,7 @@ function insert_action_node!(t::NDESPOTTree, h::Int, a)
     return length(t.n)
 end
 
-abstract type BeliefNode <: AbstractStateNode end
+# abstract type BeliefNode <: AbstractStateNode end
 
 struct NDESPOTObsNode{A,O} <: BeliefNode
     tree::NDESPOTTree{A,O}
