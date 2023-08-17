@@ -28,8 +28,8 @@ import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_a
 using D3Trees
 
 export
-    POMCPSolver,
-    POMCPPlanner,
+    NDESPOTSolver,
+    NDESPOTPlanner,
 
     action,
     solve,
@@ -43,7 +43,7 @@ export
 
     BeliefNode,
     LeafNodeBelief,
-    AbstractPOMCPSolver,
+    AbstractNDESPOTSolver,
 
     PORollout,
     FORollout,
@@ -57,10 +57,10 @@ export
     # deprecated
     AOHistoryBelief
 
-abstract type AbstractPOMCPSolver <: Solver end
+abstract type AbstractNDESPOTSolver <: Solver end
 
 """
-    POMCPSolver(#=keyword arguments=#)
+    NDESPOTSolver(#=keyword arguments=#)
 
 Partially Observable Monte Carlo Planning Solver.
 
@@ -105,7 +105,7 @@ Partially Observable Monte Carlo Planning Solver.
     Random number generator.
     default: `Random.GLOBAL_RNG`
 """
-@with_kw mutable struct POMCPSolver <: AbstractPOMCPSolver
+@with_kw mutable struct NDESPOTSolver <: AbstractNDESPOTSolver
     max_depth::Int          = 20
     scenarios::Int          = 20
     c::Float64              = 1.0
@@ -207,8 +207,8 @@ struct POMCPObsNode{A,O} <: BeliefNode
     node::Int
 end
 
-mutable struct POMCPPlanner{P, SE, RNG} <: Policy
-    solver::POMCPSolver
+mutable struct NDESPOTPlanner{P, SE, RNG} <: Policy
+    solver::NDESPOTSolver
     problem::P
     solved_estimator::SE
     rng::RNG
@@ -216,15 +216,15 @@ mutable struct POMCPPlanner{P, SE, RNG} <: Policy
     _tree::Union{Nothing, Any}
 end
 
-function POMCPPlanner(solver::POMCPSolver, pomdp::POMDP)
+function NDESPOTPlanner(solver::NDESPOTSolver, pomdp::POMDP)
     se = convert_estimator(solver.estimate_value, solver, pomdp)
-    return POMCPPlanner(solver, pomdp, se, solver.rng, Int[], nothing)
+    return NDESPOTPlanner(solver, pomdp, se, solver.rng, Int[], nothing)
 end
 
-Random.seed!(p::POMCPPlanner, seed) = Random.seed!(p.rng, seed)
+Random.seed!(p::NDESPOTPlanner, seed) = Random.seed!(p.rng, seed)
 
 
-function updater(p::POMCPPlanner)
+function updater(p::NDESPOTPlanner)
     P = typeof(p.problem)
     S = statetype(P)
     A = actiontype(P)
