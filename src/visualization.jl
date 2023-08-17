@@ -16,7 +16,7 @@ function D3Trees.D3Tree(p::NDESPOTPlanner; title="POMCP Tree", kwargs...)
     return D3Tree(p._tree; title=title, kwargs...)
 end
 
-function D3Trees.D3Tree(t::POMCPTree; title="POMCP Tree", kwargs...)
+function D3Trees.D3Tree(t::NDESPOTTree; title="POMCP Tree", kwargs...)
     lenb = length(t.total_n)
     lenba = length(t.n)
     len = lenb + lenba
@@ -81,5 +81,5 @@ function D3Trees.D3Tree(t::POMCPTree; title="POMCP Tree", kwargs...)
 
 end
 
-Base.show(io::IO, mime::MIME"text/html", t::POMCPTree) = show(io, mime, D3Tree(t))
-Base.show(io::IO, mime::MIME"text/plain", t::POMCPTree) = show(io, mime, D3Tree(t))
+Base.show(io::IO, mime::MIME"text/html", t::NDESPOTTree) = show(io, mime, D3Tree(t))
+Base.show(io::IO, mime::MIME"text/plain", t::NDESPOTTree) = show(io, mime, D3Tree(t))
