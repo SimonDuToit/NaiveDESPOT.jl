@@ -18,6 +18,7 @@ using Random
 using Printf
 using POMDPLinter: @POMDP_require, @show_requirements
 using POMDPTools
+# using BasicPOMCP
 
 import POMDPs: action, solve, updater
 import POMDPLinter
@@ -31,24 +32,24 @@ export
     NDESPOTSolver,
     NDESPOTPlanner,
 
-    action,
+    # action,
     solve,
     updater,
 
-    NoDecision,
-    AllSamplesTerminal,
-    ExceptionRethrow,
-    ReportWhenUsed,
-    default_action,
+    # NoDecision,
+    # AllSamplesTerminal,
+    # ExceptionRethrow,
+    # ReportWhenUsed,
+    # default_action,
 
-    BeliefNode,
-    LeafNodeBelief,
+    # BeliefNode,
+    # LeafNodeBelief,
     AbstractNDESPOTSolver,
 
-    PORollout,
-    FORollout,
-    RolloutEstimator,
-    FOValue,
+    # PORollout,
+    # FORollout,
+    # RolloutEstimator,
+    # FOValue,
 
     D3Tree,
     node_tag,
