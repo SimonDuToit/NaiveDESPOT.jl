@@ -2,7 +2,7 @@ function POMDPTools.action_info(p::NDESPOTPlanner, b; tree_in_info=false)
     local a::actiontype(p.problem)
     info = Dict{Symbol, Any}()
     try
-        tree = POMCPTree(p.problem, b, p.solver.tree_queries)
+        tree = NDESPOTTree(p.problem, b, p.solver.tree_queries)
         a = search(p, b, tree, info)
         p._tree = tree
         if p.solver.tree_in_info || tree_in_info
@@ -18,7 +18,7 @@ end
 
 action(p::NDESPOTPlanner, b) = first(action_info(p, b))
 
-function search(p::NDESPOTPlanner, b, t::POMCPTree, info::Dict)
+function search(p::NDESPOTPlanner, b, t::NDESPOTTree, info::Dict)
     all_terminal = true
     nquery = 0
     start_us = CPUtime_us()
@@ -30,7 +30,7 @@ function search(p::NDESPOTPlanner, b, t::POMCPTree, info::Dict)
         s = rand(p.rng, b)
         scenario = rand(p.rng, 1:p.solver.scenarios)
         if !POMDPs.isterminal(p.problem, s)
-            simulate(p, s, POMCPObsNode(t, 1), p.solver.max_depth, scenario)
+            simulate(p, s, NDESPOTObsNode(t, 1), p.solver.max_depth, scenario)
             all_terminal = false
         end
     end
@@ -57,7 +57,7 @@ end
 
 solve(solver::NDESPOTSolver, pomdp::POMDP) = NDESPOTPlanner(solver, pomdp)
 
-function simulate(p::NDESPOTPlanner, s, hnode::POMCPObsNode, steps::Int, scenario::Int)
+function simulate(p::NDESPOTPlanner, s, hnode::NDESPOTObsNode, steps::Int, scenario::Int)
     if steps == 0 || isterminal(p.problem, s)
         return 0.0
     end
@@ -97,11 +97,11 @@ function simulate(p::NDESPOTPlanner, s, hnode::POMCPObsNode, steps::Int, scenari
         v = estimate_value(p.solved_estimator,
                            p.problem,
                            sp,
-                           POMCPObsNode(t, hao),
+                           NDESPOTObsNode(t, hao),
                            steps-1)
         R = r + discount(p.problem)*v
     else
-        R = r + discount(p.problem)*simulate(p, sp, POMCPObsNode(t, hao), steps-1, scenario)
+        R = r + discount(p.problem)*simulate(p, sp, NDESPOTObsNode(t, hao), steps-1, scenario)
     end
 
     t.total_n[h] += 1
