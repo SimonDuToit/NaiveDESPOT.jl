@@ -18,6 +18,7 @@ using Random
 using Printf
 using POMDPLinter: @POMDP_require, @show_requirements
 using POMDPTools
+# using BasicPOMCP
 
 import POMDPs: action, solve, updater
 import POMDPLinter
@@ -27,7 +28,10 @@ import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_a
 
 using D3Trees
 using BasicPOMCP
+<<<<<<< HEAD
 import BasicPOMCP: POMCPTree, POMCPObsNode
+=======
+>>>>>>> parent of eebd82e (using BasicPOMCP.jl)
 
 export
     NDESPOTSolver,
@@ -119,6 +123,96 @@ Partially Observable Monte Carlo Planning Solver.
     estimate_value::Any     = RolloutEstimator(RandomSolver(rng))
 end
 
+struct POMCPTree{A,O}
+    # for each observation-terminated history
+    total_n::Vector{Int}                 # total number of visits for an observation node
+    children::Vector{Vector{Int}}        # indices of each of the children
+    o_labels::Vector{O}                  # actual observation corresponding to this observation node
+
+    # o_lookup::Dict{Tuple{Int, O}, Int}   # mapping from (action node index, observation) to an observation node index
+    s_lookup::Dict{Tuple{Int, Int}, Int}
+
+    # for each action-terminated history
+    n::Vector{Int}                       # number of visits for an action node
+    v::Vector{Float64}                   # value estimate for an action node
+    a_labels::Vector{A}                  # actual action corresponding to this action node
+end
+
+function POMCPTree(pomdp::POMDP, b, sz::Int=1000)
+    acts = collect(actions(pomdp, b))
+    A = actiontype(pomdp)
+    O = obstype(pomdp)
+    sz = min(100_000, sz)
+    return POMCPTree{A,O}(sizehint!(Int[0], sz),
+                          sizehint!(Vector{Int}[collect(1:length(acts))], sz),
+                          sizehint!(Array{O}(undef, 1), sz),
+
+                          sizehint!(Dict{Tuple{Int,O},Int}(), sz),
+
+                          sizehint!(zeros(Int, length(acts)), sz),
+                          sizehint!(zeros(Float64, length(acts)), sz),
+                          sizehint!(acts, sz)
+                         )
+end
+
+struct LeafNodeBelief{H, S} <: AbstractParticleBelief{S}
+    hist::H
+    sp::S
+end
+POMDPs.currentobs(h::LeafNodeBelief) = h.hist[end].o
+POMDPs.history(h::LeafNodeBelief) = h.hist
+
+# particle belief interface
+ParticleFilters.n_particles(b::LeafNodeBelief) = 1
+ParticleFilters.particles(b::LeafNodeBelief) = (b.sp,)
+ParticleFilters.weights(b::LeafNodeBelief) = (1.0,)
+ParticleFilters.weighted_particles(b::LeafNodeBelief) = (b.sp=>1.0,)
+ParticleFilters.weight_sum(b::LeafNodeBelief) = 1.0
+ParticleFilters.weight(b::LeafNodeBelief, i) = i == 1 ? 1.0 : 0.0
+
+function ParticleFilters.particle(b::LeafNodeBelief, i)
+    @assert i == 1
+    return b.sp
+end
+
+POMDPs.mean(b::LeafNodeBelief) = b.sp
+POMDPs.mode(b::LeafNodeBelief) = b.sp
+POMDPs.support(b::LeafNodeBelief) = (b.sp,)
+POMDPs.pdf(b::LeafNodeBelief{<:Any, S}, s::S) where S = float(s == b.sp)
+POMDPs.rand(rng::AbstractRNG, s::Random.SamplerTrivial{<:LeafNodeBelief}) = s[].sp
+
+# old deprecated name
+const AOHistoryBelief = LeafNodeBelief
+
+function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o, scenario)
+    acts = actions(pomdp, LeafNodeBelief(tuple((a=t.a_labels[ha], o=o)), sp))
+    push!(t.total_n, 0)
+    push!(t.children, sizehint!(Int[], length(acts)))
+    push!(t.o_labels, o)
+    hao = length(t.total_n)
+    # t.o_lookup[(ha, o)] = hao
+    t.s_lookup[(ha, scenario)] = hao
+    for a in acts
+        n = insert_action_node!(t, hao, a)
+        push!(t.children[hao], n)
+    end
+    return hao
+end
+
+function insert_action_node!(t::POMCPTree, h::Int, a)
+    push!(t.n, 0)
+    push!(t.v, 0.0)
+    push!(t.a_labels, a)
+    return length(t.n)
+end
+
+abstract type BeliefNode <: AbstractStateNode end
+
+struct POMCPObsNode{A,O} <: BeliefNode
+    tree::POMCPTree{A,O}
+    node::Int
+end
+
 mutable struct NDESPOTPlanner{P, SE, RNG} <: Policy
     solver::NDESPOTSolver
     problem::P
@@ -134,6 +228,7 @@ function NDESPOTPlanner(solver::NDESPOTSolver, pomdp::POMDP)
 end
 
 Random.seed!(p::NDESPOTPlanner, seed) = Random.seed!(p.rng, seed)
+
 
 function updater(p::NDESPOTPlanner)
     P = typeof(p.problem)
