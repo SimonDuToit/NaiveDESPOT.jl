@@ -28,10 +28,6 @@ import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_a
 
 using D3Trees
 using BasicPOMCP
-<<<<<<< HEAD
-import BasicPOMCP: POMCPTree, POMCPObsNode
-=======
->>>>>>> parent of eebd82e (using BasicPOMCP.jl)
 
 export
     NDESPOTSolver,
@@ -123,7 +119,7 @@ Partially Observable Monte Carlo Planning Solver.
     estimate_value::Any     = RolloutEstimator(RandomSolver(rng))
 end
 
-struct POMCPTree{A,O}
+struct NDESPOTTree{A,O}
     # for each observation-terminated history
     total_n::Vector{Int}                 # total number of visits for an observation node
     children::Vector{Vector{Int}}        # indices of each of the children
@@ -138,12 +134,12 @@ struct POMCPTree{A,O}
     a_labels::Vector{A}                  # actual action corresponding to this action node
 end
 
-function POMCPTree(pomdp::POMDP, b, sz::Int=1000)
+function NDESPOTTree(pomdp::POMDP, b, sz::Int=1000)
     acts = collect(actions(pomdp, b))
     A = actiontype(pomdp)
     O = obstype(pomdp)
     sz = min(100_000, sz)
-    return POMCPTree{A,O}(sizehint!(Int[0], sz),
+    return NDESPOTTree{A,O}(sizehint!(Int[0], sz),
                           sizehint!(Vector{Int}[collect(1:length(acts))], sz),
                           sizehint!(Array{O}(undef, 1), sz),
 
@@ -184,7 +180,7 @@ POMDPs.rand(rng::AbstractRNG, s::Random.SamplerTrivial{<:LeafNodeBelief}) = s[].
 # old deprecated name
 const AOHistoryBelief = LeafNodeBelief
 
-function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o, scenario)
+function insert_obs_node!(t::NDESPOTTree, pomdp::POMDP, ha::Int, sp, o, scenario)
     acts = actions(pomdp, LeafNodeBelief(tuple((a=t.a_labels[ha], o=o)), sp))
     push!(t.total_n, 0)
     push!(t.children, sizehint!(Int[], length(acts)))
@@ -199,7 +195,7 @@ function insert_obs_node!(t::POMCPTree, pomdp::POMDP, ha::Int, sp, o, scenario)
     return hao
 end
 
-function insert_action_node!(t::POMCPTree, h::Int, a)
+function insert_action_node!(t::NDESPOTTree, h::Int, a)
     push!(t.n, 0)
     push!(t.v, 0.0)
     push!(t.a_labels, a)
@@ -208,8 +204,8 @@ end
 
 abstract type BeliefNode <: AbstractStateNode end
 
-struct POMCPObsNode{A,O} <: BeliefNode
-    tree::POMCPTree{A,O}
+struct NDESPOTNode{A,O} <: BeliefNode
+    tree::NDESPOTTree{A,O}
     node::Int
 end
 
