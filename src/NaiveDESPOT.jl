@@ -27,6 +27,7 @@ using MCTS
 import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_action
 
 using D3Trees
+using BasicPOMCP
 
 export
     NDESPOTSolver,
