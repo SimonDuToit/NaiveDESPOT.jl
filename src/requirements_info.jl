@@ -15,19 +15,19 @@ end
 POMDPs.requirements_info(policy::NDESPOTPlanner, b) = @show_requirements action(policy, b)
 
 @POMDP_require action(p::NDESPOTPlanner, b) begin
-    tree = POMCPTree(p.problem, b, p.solver.tree_queries)
+    tree = NDESPOTTree(p.problem, b, p.solver.tree_queries)
     @subreq search(p, b, tree)
 end
 
-@POMDP_require search(p::NDESPOTPlanner, b, t::POMCPTree) begin
+@POMDP_require search(p::NDESPOTPlanner, b, t::NDESPOTTree) begin
     P = typeof(p.problem)
     @req rand(::typeof(p.rng), ::typeof(b))
     s = rand(p.rng, b)
     @req isterminal(::P, ::statetype(P))
-    @subreq simulate(p, s, POMCPObsNode(t, 1), p.solver.max_depth)
+    @subreq simulate(p, s, NDESPOTObsNode(t, 1), p.solver.max_depth)
 end
 
-@POMDP_require simulate(p::NDESPOTPlanner, s, hnode::POMCPObsNode, steps::Int) begin
+@POMDP_require simulate(p::NDESPOTPlanner, s, hnode::NDESPOTObsNode, steps::Int) begin
     P = typeof(p.problem)
     S = statetype(P)
     A = actiontype(P)
