@@ -18,7 +18,6 @@ using Random
 using Printf
 using POMDPLinter: @POMDP_require, @show_requirements
 using POMDPTools
-# using BasicPOMCP
 
 import POMDPs: action, solve, updater
 import POMDPLinter
@@ -28,6 +27,7 @@ import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_a
 
 using D3Trees
 using BasicPOMCP
+import BasicPOMCP: POMCPTree
 
 export
     NDESPOTSolver,
