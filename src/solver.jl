@@ -1,4 +1,4 @@
-function POMDPTools.action_info(p::POMCPPlanner, b; tree_in_info=false)
+function POMDPTools.action_info(p::NDESPOTPlanner, b; tree_in_info=false)
     local a::actiontype(p.problem)
     info = Dict{Symbol, Any}()
     try
@@ -16,9 +16,9 @@ function POMDPTools.action_info(p::POMCPPlanner, b; tree_in_info=false)
     return a, info
 end
 
-action(p::POMCPPlanner, b) = first(action_info(p, b))
+action(p::NDESPOTPlanner, b) = first(action_info(p, b))
 
-function search(p::POMCPPlanner, b, t::POMCPTree, info::Dict)
+function search(p::NDESPOTPlanner, b, t::POMCPTree, info::Dict)
     all_terminal = true
     nquery = 0
     start_us = CPUtime_us()
@@ -55,9 +55,9 @@ function search(p::POMCPPlanner, b, t::POMCPTree, info::Dict)
     return t.a_labels[best_node]
 end
 
-solve(solver::POMCPSolver, pomdp::POMDP) = POMCPPlanner(solver, pomdp)
+solve(solver::NDESPOTSolver, pomdp::POMDP) = NDESPOTPlanner(solver, pomdp)
 
-function simulate(p::POMCPPlanner, s, hnode::POMCPObsNode, steps::Int, scenario::Int)
+function simulate(p::NDESPOTPlanner, s, hnode::POMCPObsNode, steps::Int, scenario::Int)
     if steps == 0 || isterminal(p.problem, s)
         return 0.0
     end
