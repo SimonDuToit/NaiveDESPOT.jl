@@ -27,7 +27,7 @@ import MCTS: convert_estimator, estimate_value, node_tag, tooltip_tag, default_a
 
 using D3Trees
 using BasicPOMCP
-import BasicPOMCP: POMCPTree
+import BasicPOMCP: POMCPTree, POMCPObsNode
 
 export
     NDESPOTSolver,
