@@ -101,7 +101,7 @@ function simulate(p::POMCPPlanner, s, hnode::POMCPObsNode, steps::Int, scenario:
                            steps-1)
         R = r + discount(p.problem)*v
     else
-        R = r + discount(p.problem)*simulate(p, sp, POMCPObsNode(t, hao), steps-1)
+        R = r + discount(p.problem)*simulate(p, sp, POMCPObsNode(t, hao), steps-1, scenario)
     end
 
     t.total_n[h] += 1
