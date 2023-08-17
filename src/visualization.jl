@@ -1,6 +1,6 @@
-function D3Trees.D3Tree(p::POMCPPlanner; title="POMCP Tree", kwargs...)
+function D3Trees.D3Tree(p::NDESPOTPlanner; title="POMCP Tree", kwargs...)
     @warn("""
-         D3Tree(planner::POMCPPlanner) is deprecated and may be removed in the future. Instead, please use
+         D3Tree(planner::NDESPOTPlanner) is deprecated and may be removed in the future. Instead, please use
 
              a, info = action_info(planner, b)
              D3Tree(info[:tree])
@@ -11,7 +11,7 @@ function D3Trees.D3Tree(p::POMCPPlanner; title="POMCP Tree", kwargs...)
              D3Tree(info[:tree])
          """)
     if p._tree == nothing
-        error("POMCPPlanner has not constructed a tree yet, run `action(planner, belief)` first to construct the tree.")
+        error("NDESPOTPlanner has not constructed a tree yet, run `action(planner, belief)` first to construct the tree.")
     end
     return D3Tree(p._tree; title=title, kwargs...)
 end
