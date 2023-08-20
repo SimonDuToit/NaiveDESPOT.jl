@@ -26,7 +26,7 @@ function D3Trees.D3Tree(t::NDESPOTTree; title="POMCP Tree", kwargs...)
     link_style = fill("", len)
     style = fill("", len)
     ba_children = [Set{Int}() for i in 1:lenba]
-    for (ha_o, c) in t.o_lookup
+    for (ha_o, c) in t.s_lookup
         ha, o = ha_o
         push!(ba_children[ha], c)
     end
